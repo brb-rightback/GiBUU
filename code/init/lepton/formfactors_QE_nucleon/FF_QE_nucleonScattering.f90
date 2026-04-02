@@ -82,6 +82,153 @@ module FF_QE_nucleonScattering
   ! use axial ff. of Gari, Kaulfuss PLB 138 (1984)
   !****************************************************************************
 
+  !****************************************************************************
+  !****m* FF_QE_nucleonScattering/parametrizationAxial
+  ! SOURCE
+  !
+  integer,save :: parametrizationAxial=0
+  !
+  ! PURPOSE
+  ! * 0 = dipole approximation
+  ! * 1 = use axial ff. of Gari, Kaulfuss PLB 138 (1984)
+  ! * 2 = use z-expansion from MINERvA fit in Nature 614, 48-53 (2023)
+  ! * 3 = use z-expansion from LQCD fit in arXiv:2512.14097 eq (41)
+  ! * 4 = use z-expansion from Deuterium fit in arXiv:2512.14097 (50)
+  ! * 5 = use z-expansion with custom parameters, specified with t0,tc,a1,a2,...
+  !****************************************************************************
+
+  !****************************************************************************
+  !****m* FF_QE_nucleonScattering/t0
+  ! SOURCE
+  !
+  real,save :: t0=-0.75
+  !
+  ! PURPOSE
+  ! axial mass (only if parametrizationAxial=5)
+  !****************************************************************************
+
+  !****************************************************************************
+  !****m* FF_QE_nucleonScattering/tc
+  ! SOURCE
+  !
+  real,save :: tc=0.173889
+  !
+  ! PURPOSE
+  ! axial mass (only if parametrizationAxial=5)
+  !****************************************************************************
+
+  !****************************************************************************
+  !****m* FF_QE_nucleonScattering/a0
+  ! SOURCE
+  !
+  real,save :: a0=-0.5
+  !
+  ! PURPOSE
+  ! axial mass (only if parametrizationAxial=5)
+  !****************************************************************************
+
+  !****************************************************************************
+  !****m* FF_QE_nucleonScattering/a1
+  ! SOURCE
+  !
+  real,save :: a1=1.50
+  !
+  ! PURPOSE
+  ! axial mass (only if parametrizationAxial=5)
+  !****************************************************************************
+
+  !****************************************************************************
+  !****m* FF_QE_nucleonScattering/a2
+  ! SOURCE
+  !
+  real,save :: a2=-1.2
+  !
+  ! PURPOSE
+  ! axial mass (only if parametrizationAxial=5)
+  !****************************************************************************
+
+  !****************************************************************************
+  !****m* FF_QE_nucleonScattering/a3
+  ! SOURCE
+  !
+  real,save :: a3=-0.1
+  !
+  ! PURPOSE
+  ! axial mass (only if parametrizationAxial=5)
+  !****************************************************************************
+
+  !****************************************************************************
+  !****m* FF_QE_nucleonScattering/a4
+  ! SOURCE
+  !
+  real,save :: a4=0.2
+  !
+  ! PURPOSE
+  ! axial mass (only if parametrizationAxial=5)
+  !****************************************************************************
+
+  !****************************************************************************
+  !****m* FF_QE_nucleonScattering/a5
+  ! SOURCE
+  !
+  real,save :: a5=0.46
+  !
+  ! PURPOSE
+  ! axial mass (only if parametrizationAxial=5)
+  !****************************************************************************
+
+  !****************************************************************************
+  !****m* FF_QE_nucleonScattering/a6
+  ! SOURCE
+  !
+  real,save :: a6=-0.4
+  !
+  ! PURPOSE
+  ! axial mass (only if parametrizationAxial=5)
+  !****************************************************************************
+
+  !****************************************************************************
+  !****m* FF_QE_nucleonScattering/a7
+  ! SOURCE
+  !
+  real,save :: a7=0.15
+  !
+  ! PURPOSE
+  ! axial mass (only if parametrizationAxial=5)
+  !****************************************************************************
+
+  !****************************************************************************
+  !****m* FF_QE_nucleonScattering/a8
+  ! SOURCE
+  !
+  real,save :: a8=-0.044
+  !
+  ! PURPOSE
+  ! axial mass (only if parametrizationAxial=5)
+  !****************************************************************************
+
+  !****************************************************************************
+  !****m* FF_QE_nucleonScattering/a9
+  ! SOURCE
+  !
+  real,save :: a9=0
+  !
+  ! PURPOSE
+  ! axial mass (only if parametrizationAxial=5)
+  !****************************************************************************
+
+  !****************************************************************************
+  !****m* FF_QE_nucleonScattering/a10
+  ! SOURCE
+  !
+  real,save :: a10=0
+  !
+  ! PURPOSE
+  ! axial mass (only if parametrizationAxial=5)
+  !****************************************************************************
+
+
+
   ! constants: magnetic moments of proton and neutron
   real, parameter :: mup = 2.793
   real, parameter :: mun = -1.913
@@ -135,11 +282,41 @@ contains
        stop
     end select
 
-    if (useNonStandardMA) write(*,*) 'useNonStandardMA: nucleon axial mass: ', MA_in
+    write(*,*) 'Axial Formfactor Parametrization for QE:'
+    select case (parametrizationAxial)
+    case (0)
+       write(*,*) '     => dipole approximation'
+       if (useNonStandardMA) write(*,*) 'useNonStandardMA: nucleon axial mass:', MA_in
+    case (1)
+       write(*,*) '     => ff. of Gari, Kaulfuss PLB 138 (1984)'
+       if (useNonStandardMA) write(*,*) 'useNonStandardMA: nucleon axial mass:', MA_in
+    case (2)
+       write(*,*) '     => z-expansion from MINERvA fit in Nature 614, 48-53 (2023)'
+    case (3)
+       write(*,*) '     => z-expansion from LQCD fit in arXiv:2512.14097 eq (41)'
+    case (4)
+       write(*,*) '     => z-expansion from Deuterium fit in arXiv:2512.14097 (50)'
+    case (5)
+       write(*,*) '     => custom z-expansion'
+       write(*,*) '       => t0:', t0
+       write(*,*) '       => tc:', tc
+       write(*,*) '       => a0:', a0
+       write(*,*) '       => a1:', a1
+       write(*,*) '       => a2:', a2
+       write(*,*) '       => a3:', a3
+       write(*,*) '       => a4:', a4
+       write(*,*) '       => a5:', a5
+       write(*,*) '       => a6:', a6
+       write(*,*) '       => a7:', a7
+       write(*,*) '       => a8:', a8
+       write(*,*) '       => a9:', a9
+       write(*,*) '       => a10:', a10
+    case default
+       write(*,*) ' strange value for QE FF parametrization -> STOP',parametrizationAxial
+       stop
+    end select
 
     write(*,*) 'deltas= ', deltas
-
-    if (axialMonopole) write(*,*) 'use axial ff. of Gari, Kaulfuss PLB 138 (1984)'
 
     call Write_ReadingInput('ff_QE',1)
 
@@ -200,6 +377,8 @@ contains
     real, parameter :: lambda1=0.85
     real, parameter :: lambda2=1.38
 
+    ! z expansion
+    real :: z
 
     if (initFlag) then
        call initInput
@@ -246,7 +425,70 @@ contains
        stop
     end select
 
-    if (useNonStandardMA) MA=MA_in  !overwrite MA with the value given in the jobcard
+
+    select case (parametrizationAxial)
+    case(0)
+       ! dipole
+       if (useNonStandardMA) MA=MA_in  !overwrite MA with the value given in the jobcard
+
+    case(1)
+       ! monopole of Gari, Kaulfuss PLB 138 (1984)
+       if (useNonStandardMA) MA=MA_in  !overwrite MA with the value given in the jobcard
+
+    case(2)
+       ! MINERvA z-expansion from Nature 614, 48-53 (2023)
+       tc=0.173889
+       t0=-0.75
+       a0=-0.5
+       a1=1.50
+       a2=-1.2
+       a3=-0.1
+       a4=0.2
+       a5=0.46
+       a6=-0.4
+       a7=0.15
+       a8=-0.044
+       a9=0
+       a10=0
+
+    case(3)
+       ! LQCD z-expansion from arXiv:2512.14097 eq (41)
+       ! sign flip to match convention used here
+       tc=0.161604
+       t0=-0.5
+       a0=-0.71742019
+       a1=1.72089706
+       a2=-0.30982708
+       a3=-1.62125837
+       a4=0.27506993
+       a5=1.25297945
+       a6=-0.60044079
+       a7=0
+       a8=0
+       a9=0
+       a10=0
+
+    case(4)
+       ! Deuterium z-expansion from arXiv:2512.14097 eq (50)
+       ! sign flip to match convention used here
+       tc=0.161604
+       t0=-0.5
+       a0=-0.54264533
+       a1=2.08493637
+       a2=-1.89831616
+       a3=-2.40319245
+       a4=5.88979056
+       a5=-4.14554900
+       a6=1.01497601
+       a7=0
+       a8=0
+       a9=0
+       a10=0
+
+    case default
+       write(*,*) 'Wrong parametrization in formfactors_QE',parametrizationAxial,'STOP!!!'
+       stop
+    end select
 
     if (initialState_charge==1) then
        if (present(GE)) GE=GEp
@@ -284,14 +526,29 @@ contains
           ! can be nonzero for proton in u-channel
           F1 = ((GEp-GEn)+tau*(GMp-GMn))/(1.+tau) !0.
           F2 = ((GMp-GMn) - (GEp-GEn))/(1.+tau) !0.
-          FA = gA/(1.+QSquared/MA**2)**2 !0.
+          if (parametrizationAxial==0) then
+             FA = gA/(1.+QSquared/MA**2)**2 !0.
+          else if (parametrizationAxial==1) then
+             ! FA = gA/(1.+QSquared/MA**2)**2 !0.
+             FA = gA/(1.+QSquared/MA**2)*(lambda1**2/(lambda1**2+QSquared))*lambda2**4/(lambda2**4+QSquared**2)
+             ! should these have monopole?
+          else if (parametrizationAxial.gt.1) then
+             z = ( SQRT(tc+QSquared) - SQRT(tc-t0) ) / ( SQRT(tc+QSquared) + SQRT(tc-t0) )
+             FA = a0*(z**0) + a1*(z**1) + a2*(z**2) + a3*(z**3) + a4*(z**4) + a5*(z**5) + a6*(z**6) + a7*(z**7) + a8*(z**8) + a9*(z**9) + a10*(z**10)
+          end if
           FP=  ((2.*mN**2)/(mPi**2. + QSquared))*FA !0.
           return
        else if (initialState_charge.eq.neutron) then
           F1 = ((GEp-GEn)+tau*(GMp-GMn))/(1.+tau)
           F2 = ((GMp-GMn) - (GEp-GEn))/(1.+tau)
-          FA = gA/(1.+QSquared/MA**2)**2
-          if (axialMonopole) FA = gA/(1.+QSquared/MA**2)*(lambda1**2/(lambda1**2+QSquared))*lambda2**4/(lambda2**4+QSquared**2)
+          if (parametrizationAxial==0) then
+             FA = gA/(1.+QSquared/MA**2)**2 !0.
+          else if (parametrizationAxial==1) then
+             FA = gA/(1.+QSquared/MA**2)*(lambda1**2/(lambda1**2+QSquared))*lambda2**4/(lambda2**4+QSquared**2)
+          else if (parametrizationAxial.gt.1) then
+             z = ( SQRT(tc+QSquared) - SQRT(tc-t0) ) / ( SQRT(tc+QSquared) + SQRT(tc-t0) )
+             FA = a0*(z**0) + a1*(z**1) + a2*(z**2) + a3*(z**3) + a4*(z**4) + a5*(z**5) + a6*(z**6) + a7*(z**7) + a8*(z**8) + a9*(z**9) + a10*(z**10)
+          end if
           FP= ((2.*mN**2)/(mPi**2. + QSquared))*FA
        else
           write(*,*) 'Error in formfactors_QE! Strange initialState_charge',initialState_charge
