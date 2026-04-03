@@ -513,9 +513,17 @@ contains
        else
           write(*,*) 'Error in formfactors_QE! Strange initialState_charge',initialState_charge
        end if
-       FA = gA*tau3/(2.*(1.+QSquared/MA**2.)**2.)+FAS/2.
-       if (parametrizationAxial==1)  &
-            & FA = gA*tau3/2./(1.+QSquared/MA**2)*(lambda1**2/(lambda1**2+QSquared))*lambda2**4/(lambda2**4+QSquared**2)+FAS/2.
+
+       if (parametrizationAxial==0) then
+          FA = gA*tau3/(2.*(1.+QSquared/MA**2.)**2.)+FAS/2.
+       else if (parametrizationAxial==1) then
+          FA = gA*tau3/2./(1.+QSquared/MA**2)*(lambda1**2/(lambda1**2+QSquared))*lambda2**4/(lambda2**4+QSquared**2)+FAS/2.
+       else if (parametrizationAxial.gt.1) then
+          FA = FAS/2
+          do i=0,kmax
+             FA = FA + tau3*ak(i+1)*(z**(i+1))
+          end do
+       end if
        FP=((2.*mN**2)/(mPi**2.+QSquared))*FA
 
 
