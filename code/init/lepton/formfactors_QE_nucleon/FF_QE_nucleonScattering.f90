@@ -380,7 +380,7 @@ contains
        ak(5)=5.88979056
        ak(6)=-4.14554900
        ak(7)=1.01497601 ! a6
-
+    case(5)
     case default
        write(*,*) 'Wrong parametrization in formfactors_QE',parametrizationAxial,'STOP!!!'
        stop
@@ -432,13 +432,11 @@ contains
           if (parametrizationAxial==0) then
              FA = gA/(1.+QSquared/MA**2)**2 !0.
           else if (parametrizationAxial==1) then
-             ! FA = gA/(1.+QSquared/MA**2)**2 !0.
              FA = gA/(1.+QSquared/MA**2)*(lambda1**2/(lambda1**2+QSquared))*lambda2**4/(lambda2**4+QSquared**2)
-             ! should these have monopole?
           else if (parametrizationAxial.gt.1) then
              FA = 0
              do i=0,kmax  
-                FA = FA + ak(i+1)*(z**(i+1)) 
+                FA = FA + ak(i+1)*(z**i) 
              end do
           end if
           FP=  ((2.*mN**2)/(mPi**2. + QSquared))*FA !0.
@@ -453,7 +451,7 @@ contains
           else if (parametrizationAxial.gt.1) then
              FA = 0
              do i=0,kmax
-                FA = FA + ak(i+1)*(z**(i+1)) 
+                FA = FA + ak(i+1)*(z**i) 
              end do
           end if
           FP= ((2.*mN**2)/(mPi**2. + QSquared))*FA
@@ -521,11 +519,10 @@ contains
        else if (parametrizationAxial.gt.1) then
           FA = FAS/2
           do i=0,kmax
-             FA = FA + tau3*ak(i+1)*(z**(i+1))
+             FA = FA + tau3*ak(i+1)*(z**i)/2
           end do
        end if
        FP=((2.*mN**2)/(mPi**2.+QSquared))*FA
-
 
     case default
        write(*,*) 'Error in formfactors_QE! Invalid process ID:', processID
