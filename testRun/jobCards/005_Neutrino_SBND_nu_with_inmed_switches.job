@@ -47,7 +47,7 @@
 
 &neutrino_induced
       process_ID      =  2      ! 2:CC, 3:NC, -2:antiCC, -3:antiNC
-      flavor_ID       =  2      ! 1:electron, 2:muon, 3:tau
+      flavor_ID       =  1      ! 1:electron, 2:muon, 3:tau
 !
 ! for calculations with given, fixed neutrino energy
 !     nuXsectionMode  =  6 !  6: dSigmaMC
@@ -76,9 +76,9 @@
 !       nuExp           = 16 ! 16: DUNE antineutrino mode flux
 !       nuExp           = 17 ! 17: LBNO
 !       nuExp           = 18 ! 18: NOMAD
-!       nuExp           = 19 ! 19: BNB nue
+       nuExp           = 19 ! 19: BNB nue
 !       nuExp           = 20 ! 10: BNB nuebar
-       nuExp           = 21 ! 21: BNB numu
+!       nuExp           = 21 ! 21: BNB numu
 !       nuExp           = 22 ! 22: BNB numubar
 !       nuExp           = 23 ! NOvA ND    !various modes for near detector 
 !       nuExp           = 24 ! T2K on axis beam (INGRID)
@@ -89,7 +89,7 @@
                              ! for nuExp=99
                              ! this is an example for the MINERvA medium energy
                              ! flux, but any other flux could be inserted here
-							 ! flux must be in buuinput as .dat file
+                             ! flux must be in buuinput as .dat file
                              ! with 2 columns,
                              ! 1st col: energy, 2nd col: flux,
                              ! energies must be linear and equidistant
@@ -112,7 +112,7 @@
       Z=18
       A=40
       densitySwitch_Static=2    ! 0: density=0.0, 1: Woods-Saxon by Lenske, 2 : NPA 554, 3: Woods-Saxon by Lenske, different neutron and proton radii,
-					            ! 5: density distribution is a sphere with density according to the input value of "fermiMomentum_input".
+                                ! 5: density distribution is a sphere with density according to the input value of "fermiMomentum_input".
       fermiMomentum_input=0.225 ! Input value of the fermi momentum for densitySwitch_static=5.
       fermiMotion=.true.
 /
@@ -138,8 +138,8 @@
       eventtype=5               ! 5=neutrino, 200=simple transport of a given particle
 
       numEnsembles=1000         ! for C12 you can use 4000, for heavier nuclei should be lower; decrease it if there are problems with memory
-      numTimeSteps=180          ! the distance numTimeSteps*delta_T (100*0.2=20 fm in this example) should significantly exceed the radius of the target nucleus
-	                            ! for inclusive cross sections set numTimeSteps= 0; set this to 0 for inclusive cross sections.
+      numTimeSteps=200          ! the distance numTimeSteps*delta_T (100*0.2=20 fm in this example) should significantly exceed the radius of the target nucleus
+                                ! for inclusive cross sections set numTimeSteps= 0; set this to 0 for inclusive cross sections.
       delta_T=0.2               ! timestep for FSI trajectories
 
       fullensemble=.true.       ! do not change
@@ -197,15 +197,11 @@ master_piDelta_inmed = .false.  ! This is a master switch for pi-Delta inmed cha
 ! file: code/width/baryonWidthMedium.f90
 &width_Baryon
       mediumSwitch=.false.       ! if .false. vacuum widths will be used for all resonances
-                                ! and other switches are not meaningful/relevant
+                                 ! and other switches are not meaningful/relevant
       mediumSwitch_Delta=.false. ! Use Oset broadening of the Delta (only relevant for mediumSwitch_coll=.true.)
-      mediumSwitch_coll=.false. ! Use collisional broadening of all resonances
+      mediumSwitch_coll=.false.  ! Use collisional broadening of all resonances
 /
 
-!file:  ./potential/mesonPotential.f90
-&mesonPotential
-      pionpot_Switch = 0     ! No pion potential for =0, for =4 s- and p-wave pion potential
-/ 
 
 !################################################################
 ! now inmed-changes of NN X-sections
@@ -217,7 +213,7 @@ master_piDelta_inmed = .false.  ! This is a master switch for pi-Delta inmed cha
       flagInMedium = .true.    ! turns on in-medium changes of NN cross sections in deciding to keep an event
 !  switches only relevant if flagInMedium = .true. :
 !
-       InMediumMode = 2          ! NN elastic X-section reduced according to Machleidt-Li
+       InMediumMode = 3          ! NN elastic X-section reduced according to Machleidt-Li
                                  ! BB -> BB* is reduced following Song,Ko, PRC91, 014901 (2015),
                                  ! controlled by parameter alpha:
        alpha = 1.2               ! parameter in the Song-Ko exponential suppression of NN->NDelta Xsection
@@ -230,16 +226,25 @@ master_piDelta_inmed = .false.  ! This is a master switch for pi-Delta inmed cha
 /
 
 
+!##############################################################################
+! Hadron potentials
+!##############################################################################
 
-!##############################################################################
-! Baryon potentials
-!##############################################################################
+!file:  ./potential/mesonPotential.f90
+&mesonPotential
+      pionpot_Switch = 0     ! No pion potential for =0, for =4 s- and p-wave pion potential
+/
+
 ! file: code/potential/baryonPotential.f90
 &baryonPotential
       EQS_Type=5                ! 1=soft mom-dep, 2=hard mom-dep, 3=soft non-mom-dep, 4=hard non-mom-dep, 5=medium mom-dep
       DeltaPot=1                ! 1=2/3 of nucleon potential, 2=100 MeV*rho/rhoNull
 /
 
+! file: code/spectralFunctions/spectralFunc.f90
+&spectralFunction
+      nuclwidth=0.001           ! if mediumSwitch_coll=.false.: this parameter determines the "bare nucleon width", for numerical purpose    
+/
 
 ! file: code/collisions/insertion.f90
 &insertion
@@ -264,10 +269,12 @@ master_piDelta_inmed = .false.  ! This is a master switch for pi-Delta inmed cha
 &neutrinoAnalysis
       outputEvents=.true.       ! output list of events and all outgoing particles in each event to the file FinalEvents.dat
 
-      include_W_dist=.false.     ! printout of W-distributions for outgoing channel
-	  DoOutChannels = .true.    ! gives cross sections for various final states
-	  ZeroPion_analysis=.true.  ! extra cross sections  for events with 0 pions in the final state
-	  detailed_diff_output=.false. ! differential xsec; see namelist detailed_diff for max values and bins of the histograms
+      include_W_dist=.false.    ! printout of W-distributions for outgoing channel
+      DoOutChannels = .true.    ! gives cross sections for various final states
+      ZeroPion_analysis=.true.  ! extra cross sections for events with 0 pions in the final state
+      detailed_diff_output=.false. ! differential xsec; see namelist detailed_diff for max values and bins of the histograms
+      specificEvent_analysis=.false.  ! extra cross sections for specific final states; see namelist nl_specificEvent
+                                      ! also provides Q2 and energy reconstruction
 
 ! now various exp. cuts on final state nucleons and pions; these may affect the FinalEvents file
 ! should be turned off for own analysis
@@ -282,8 +289,7 @@ master_piDelta_inmed = .false.  ! This is a master switch for pi-Delta inmed cha
                        ! =2: only unbound particles, =0: all particles
 
       reconstruct_neutrino_energy=.false. ! calculate neutrino energy reconstruction for various final states (see nl_specificEvent)
-      specificEvent_analysis=.false.      ! extra cross sections for specific final states; see namelist nl_specificEvent
-                                         ! also provides Q2 and energy reconstruction
+    
 
 /
 

@@ -87,7 +87,7 @@ module XsectionRatios
   !   T. Song, C.M. Ko, PRC 91, 014901 (2015)
   !   [works in all modes (Skyrme, RMF, cascade)]
   !   Elastic cross section change only can be obtained by setting alpha = 0
-  ! * 3: Only Song-Ko modification turned on
+  ! * 3: Only Song-Ko modification for Delta excitation turned on
   ! NOTES
   ! relevant when flagInMedium = .true.
   !****************************************************************************
