@@ -1499,7 +1499,7 @@ contains
     use pauliBlockingModule, only: checkPauli
     use insertion, only: particlePropagated, setIntoVector
     use collisionTools, only: finalCheck
-    use inputGeneral, only: freezeRealParticles
+    use inputGeneral, only: freezeRealParticles, current_run_number
     use residue, only: ResidueAddPH
 
     type(particle), intent(inout), dimension(:,:) :: partPert
@@ -1513,7 +1513,7 @@ contains
     integer :: HiEnergyType,i,number
     real :: XS
     integer, save :: justdeletedelta_count=0, justdeletedelta_countO=0
-    logical, save :: firstCall = .true.
+    integer, save :: lastRun = -1
 
     size_real_dim2=size(partReal,dim=2)
     !size_pert_dim2=size(partPert,dim=2)
@@ -1521,12 +1521,14 @@ contains
     !--- real<->real collisions:
 
     ! note: freezeRealParticles and twoBodyP..RealReal are exclusive
-    if (firstCall) then
-       if (freezeRealParticles) then ! do it once
+    ! The real particles are frozen during a run, but re-initialized at the
+    ! start of every run: rebuild the volume elements once per run.
+    if (current_run_number /= lastRun) then
+       if (freezeRealParticles) then
           call VolumeElements_CLEAR_Real
           call VolumeElements_SETUP_Real(partReal)
        end if
-       firstCall = .false.
+       lastRun = current_run_number
     end if
     if (twoBodyProcessesRealReal) then
        call VolumeElements_CLEAR_Real
@@ -1953,7 +1955,8 @@ contains
   subroutine threeBody(partPert, partReal, time)
 
     use IDTable, only: pion, nucleon, Delta
-    use inputGeneral, only: fullEnsemble,localEnsemble,freezeRealParticles
+    use inputGeneral, only: fullEnsemble,localEnsemble,freezeRealParticles, &
+         current_run_number
     use particleDefinition
     use master_3Body, only: GetRadiusNukSearch, nukSearch, make_3Body_Collision
     use collisionNumbering, only: pert_numbering,real_numbering,  &
@@ -1985,11 +1988,12 @@ contains
     integer, dimension(2,maxOut) :: posOut
     type(particle) :: partS2
 
-    logical, save :: firstCall = .true.
+    integer, save :: lastRun = -1
 
     if (localEnsemble) then
 
-       if (firstCall.or.(.not.freezeRealParticles)) then
+       ! frozen real particles are re-initialized at the start of every run
+       if ((current_run_number /= lastRun).or.(.not.freezeRealParticles)) then
           call VolumeElements_CLEAR_Real
           call VolumeElements_SETUP_Real(partReal)
        end if
@@ -1998,7 +2002,7 @@ contains
 
        !       call VolumeElements_Statistics
     end if
-    firstCall = .false.
+    lastRun = current_run_number
 
     !**************************************************************************
     ! perturbative Particle with two real ones
